@@ -2,7 +2,7 @@
 
 This repository contains the R script and data used to evaluate the effects of livestock management systems on floral visitor communities in dry Chaco forests of Argentina.
 
-## Data
+## data
 nuevos_analisis_polinizadores.ods — abundance matrix of floral visitor species recorded across 12 sites
 
 rasgosfuncionales_apiformes.ods — functional trait database for Apiformes species, including sociality, nesting location, and diet breadth

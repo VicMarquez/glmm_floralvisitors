@@ -19,10 +19,10 @@ library(vegan)
 # de las planillas ODS (ABRA 1-3, GOY 4-6, EMB 7-9, CAN 10-12)
 
 tratamiento <- data.frame(
-  sitio     = c("ABRA 1","ABRA 2","ABRA 3","GOY 4","GOY 5","GOY 6",
+  plots    = c("ABRA 1","ABRA 2","ABRA 3","GOY 4","GOY 5","GOY 6",
                 "EMB 7","EMB 8","EMB 9","CAN 10","CAN 11","CAN 12"),
   treatment = factor(c("P","P","P","S","S","S","P","P","P","S","S","S")),
-  bloque    = factor(c("ABRA","ABRA","ABRA","GOY","GOY","GOY",
+  sitio    = factor(c("ABRA","ABRA","ABRA","GOY","GOY","GOY",
                        "EMB","EMB","EMB","CAN","CAN","CAN")))
 ####################################################################
 # 1. CARGAR Y PREPARAR DATOS
@@ -86,7 +86,7 @@ tratamiento$riqueza_sp      <- specnumber(abund_t)
 ####################################################################
 # 2. MODELOS (Shannon, Abundancia, Riqueza)
 ####################################################################
-m_shannon <- glmmTMB(shannon ~ treatment + (1|bloque), data = tratamiento, family = gaussian)
+m_shannon <- glmmTMB(shannon ~ treatment + (1|sitio), data = tratamiento, family = gaussian)
 summary(m_shannon)
 residuos_shannon <- simulateResiduals(fittedModel = m_shannon)
 plot(residuos_shannon)
@@ -96,9 +96,9 @@ plot(residuos_shannon)
 #(Intercept)  0.76819    0.04902   15.67   <2e-16 ***
 #  treatmentS   0.15667    0.06933    2.26   0.0238 * 
 #Conway-Maxwell-Poisson
-m_riqueza <- glmmTMB(riqueza_sp ~ treatment + (1|bloque), data = tratamiento, family = compois)
+m_riqueza <- glmmTMB(riqueza_sp ~ treatment + (1|sitio), data = tratamiento, family = compois)
 summary(m_riqueza) # este modelo tiene problemas de convergencia
-#el intercepto tiene NaN en el error est·ndar. Esto ocurre porque el efecto aleatorio de bloque est· absorbiendo toda la varianza del intercepto.
+#el intercepto tiene NaN en el error est√°ndar. Esto ocurre porque el efecto aleatorio de bloque est√° absorbiendo toda la varianza del intercepto.
 plot(simulateResiduals(m_riqueza))
 
 m_riqueza_simple <- glmmTMB(riqueza_sp ~ treatment, data = tratamiento, family = compois)
@@ -110,7 +110,7 @@ plot(simulateResiduals(m_riqueza_simple))
 #(Intercept)  1.57554    0.03147   50.07   <2e-16 ***
 #  treatmentS  -0.07146    0.05520   -1.29    0.196  
 
-m_abundancia <- glmmTMB(abundancia_total ~ treatment + (1|bloque), data = tratamiento, family =  nbinom2 )
+m_abundancia <- glmmTMB(abundancia_total ~ treatment + (1|sitio), data = tratamiento, family =  nbinom2 )
 summary(m_abundancia)
 #Conditional model:
 #  Estimate Std. Error z value Pr(>|z|)    
@@ -124,10 +124,10 @@ plot(simulateResiduals(m_abundancia))
 ####################################################################
 ord_df <- as.data.frame(abund_t)
 ord_df$treatment <- tratamiento$treatment
-ord_df$bloque    <- tratamiento$bloque
+ord_df$sitio    <- tratamiento$sitio
 
 # Coleoptera
-m_col      <- glmmTMB(Coleoptera ~ treatment + (1|bloque), data = ord_df, family = nbinom2)
+m_col      <- glmmTMB(Coleoptera ~ treatment + (1|sitio), data = ord_df, family = nbinom2)
 summary(m_col)
 
 #Conditional model:
@@ -140,7 +140,7 @@ plot(simulateResiduals(m_col)) # los supuestos esta bien
 #Z=-6.04
 
 # Hymenoptera
-m_hym      <- glmmTMB(Hymenoptera ~ treatment + (1|bloque), data = ord_df, family = nbinom2)
+m_hym      <- glmmTMB(Hymenoptera ~ treatment + (1|sitio), data = ord_df, family = nbinom2)
 summary(m_hym)
 
 #AIC       BIC    logLik -2*log(L)  df.resid 
@@ -162,7 +162,7 @@ plot(simulateResiduals(m_hym)) #
 # La misma tendencia, los hymenopteros disminuyen sig en las silvopasturas Z=-3.81
 
 # Diptera
-m_dip <- glmmTMB(Diptera ~ treatment + (1|bloque), data = ord_df, family = nbinom2)
+m_dip <- glmmTMB(Diptera ~ treatment + (1|sitio), data = ord_df, family = nbinom2)
 summary(m_dip)
 #Conditional model:
 #Estimate Std. Error z value Pr(>|z|)    3
@@ -173,7 +173,7 @@ plot(simulateResiduals(m_dip)) # estan ok
 # el tipo de manejo no es significativo 
 
 # Lepidoptera
-m_lep      <- glmmTMB(Lepidoptera ~ treatment + (1|bloque), data = ord_df, family = nbinom2)
+m_lep      <- glmmTMB(Lepidoptera ~ treatment + (1|sitio), data = ord_df, family = nbinom2)
 summary(m_lep)
 #Conditional model:
 #  Estimate Std. Error z value Pr(>|z|)    
@@ -188,7 +188,7 @@ plot(simulateResiduals(m_lep))
 hym_df<- as.data.frame(hym_matrix)
 hym_df<- as.data.frame(hym_matrix)
 hym_df$treatment <- tratamiento$treatment
-hym_df$bloque <- tratamiento$bloque
+hym_df$sitio <- tratamiento$sitio
 # Verificar
 names(hym_df)
 # Total de individuos por grupo funcional
@@ -198,7 +198,7 @@ hym %>%
   arrange(desc(total))
 
 #STINGLESS BEES
-m_stingless <- glmmTMB(`Stingless bees` ~ treatment + (1|bloque), data = hym_df, family = nbinom2)
+m_stingless <- glmmTMB(`Stingless bees` ~ treatment + (1|sitio), data = hym_df, family = nbinom2)
 summary(m_stingless)
 
 #AIC       BIC    logLik -2*log(L)  df.resid 
@@ -206,7 +206,7 @@ summary(m_stingless)
 #Random effects:
 #  Conditional model:
 #  Groups Name        Variance Std.Dev.
-#bloque (Intercept) 0.3354   0.5791  
+#sitio (Intercept) 0.3354   0.5791  
 #Number of obs: 12, groups:  bloque, 4
 #Dispersion parameter for nbinom2 family (): 0.965 
 #Conditional model:
@@ -217,7 +217,7 @@ plot(simulateResiduals(m_stingless)) #ok
 # el tipo de manejo afecta sig a la abundancia de stingless bees
 
 # OTHER BEES
-m_other <- glmmTMB(`Other bees` ~ treatment + (1|bloque), data = hym_df, family = nbinom2)
+m_other <- glmmTMB(`Other bees` ~ treatment + (1|sitio), data = hym_df, family = nbinom2)
 summary(m_other)
 #Conditional model:
 #  Estimate Std. Error z value Pr(>|z|)    
@@ -228,7 +228,7 @@ summary(m_other)
 plot(simulateResiduals(m_other))
 
 # HALICTIDAE 
-m_halictidae <- glmmTMB(Halictidae ~ treatment + (1|bloque), data = hym_df, family = nbinom2)
+m_halictidae <- glmmTMB(Halictidae ~ treatment + (1|sitio), data = hym_df, family = nbinom2)
 summary(m_halictidae)
 #Conditional model:
 #  Estimate Std. Error z value Pr(>|z|)    
@@ -238,7 +238,7 @@ plot(simulateResiduals(m_halictidae)) #ok
 # el tipo de uso del suelo no afecta sig a halictidae
 
 # HONEYBEE 
-m_honeybee <- glmmTMB(Honeybee ~ treatment + (1|bloque), data = hym_df, family = nbinom2)
+m_honeybee <- glmmTMB(Honeybee ~ treatment + (1|sitio), data = hym_df, family = nbinom2)
 summary(m_honeybee) 
 #Conditional model:
 #  Estimate Std. Error z value Pr(>|z|)
@@ -262,7 +262,7 @@ hym_long_traits <- hym %>%
       sitio %in% c("EMB 7","EMB 8","EMB 9")    ~ "P",
       sitio %in% c("CAN 10","CAN 11","CAN 12") ~ "S"
     ),
-    bloque = case_when(
+   sitio = case_when(
       sitio %in% c("ABRA 1","ABRA 2","ABRA 3") ~ "ABRA",
       sitio %in% c("GOY 4","GOY 5","GOY 6")    ~ "GOY",
       sitio %in% c("EMB 7","EMB 8","EMB 9")    ~ "EMB",
@@ -278,7 +278,7 @@ head(hym_long_traits)
 # ?????? BEHAVIOR ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
 beh_data <- hym_long_traits %>%
   filter(!is.na(Behavior), Behavior != "cleptoparasitic") %>%
-  group_by(sitio, treatment, bloque, Behavior) %>%
+  group_by(sitio, treatment, sitio, Behavior) %>%
   summarise(abun = sum(abundancia), .groups = "drop") %>%
   group_by(sitio) %>%
   mutate(total = sum(abun)) %>%
@@ -287,7 +287,7 @@ beh_data <- hym_long_traits %>%
 # ?????? NEST LOCATION ???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
 nest_data <- hym_long_traits %>%
   filter(!is.na(`Nest location`)) %>%
-  group_by(sitio, treatment, bloque, `Nest location`) %>%
+  group_by(sitio, treatment, sitio, `Nest location`) %>%
   summarise(abun = sum(abundancia), .groups = "drop") %>%
   group_by(sitio) %>%
   mutate(total = sum(abun)) %>%
@@ -296,7 +296,7 @@ nest_data <- hym_long_traits %>%
 # ?????? DIET ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
 diet_data <- hym_long_traits %>%
   filter(!is.na(Diet), Diet != "NA") %>%
-  group_by(sitio, treatment, bloque, Diet) %>%
+  group_by(sitio, treatment, sitio, Diet) %>%
   summarise(abun = sum(abundancia), .groups = "drop") %>%
   group_by(sitio) %>%
   mutate(total = sum(abun)) %>%
@@ -343,7 +343,7 @@ hym_long_traits %>%
 ##############
 
 # BEHAVIOR/SOCIALITY 
-m_beh <- glmmTMB(abun ~ treatment * Behavior + (1|bloque), data = beh_data,family = nbinom2)
+m_beh <- glmmTMB(abun ~ treatment * Behavior + (1|sitio), data = beh_data,family = nbinom2)
 summary(m_beh)
 plot(simulateResiduals(m_beh))
 
@@ -356,7 +356,7 @@ plot(simulateResiduals(m_beh))
 
 
 # NEST LOCATION
-m_nest <- glmmTMB(abun ~ treatment * `Nest location` + (1|bloque),
+m_nest <- glmmTMB(abun ~ treatment * `Nest location` + (1|stio),
                   data = nest_data,
                   family = nbinom2)
 summary(m_nest)
@@ -369,7 +369,7 @@ plot(simulateResiduals(m_nest))
   
 #  Conditional model:
 #  Groups Name        Variance  Std.Dev. 
-#bloque (Intercept) 6.023e-10 2.454e-05
+#sitio (Intercept) 6.023e-10 2.454e-05
 #Number of obs: 24, groups:  bloque, 4
 
 #Dispersion parameter for nbinom2 family (): 1.54 
@@ -382,7 +382,7 @@ plot(simulateResiduals(m_nest))
 #  treatmentS:`Nest location`below ground   2.5407     0.6928   3.667 0.000245 ***
 
 # DIET 
-m_diet <- glmmTMB(abun ~ treatment * Diet + (1|bloque),
+m_diet <- glmmTMB(abun ~ treatment * Diet + (1|sitio),
                   data = diet_data,
                   family = nbinom2)
 summary(m_diet)
@@ -395,7 +395,7 @@ plot(simulateResiduals(m_diet))
 #  
 #  Conditional model:
 #  Groups Name        Variance  Std.Dev. 
-#bloque (Intercept) 8.434e-10 2.904e-05
+#sitio (Intercept) 8.434e-10 2.904e-05
 #Number of obs: 24, groups:  bloque, 4
 
 #Dispersion parameter for nbinom2 family (): 1.55 
@@ -436,7 +436,7 @@ traits_data <- rasgos %>%
   group_by(Behavior, `Nest location`, Diet) %>%
   summarise(n = n(), .groups = "drop")
 
-# Gr·fico alluvial
+# Gr√°fico alluvial
 ggplot(traits_data,
        aes(axis1 = Behavior,
            axis2 = `Nest location`,
